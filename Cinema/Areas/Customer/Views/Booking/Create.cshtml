@@ -1,0 +1,70 @@
+﻿@model Cinema.Models.Booking
+
+@{
+    ViewData["Title"] = "Book Tickets";
+}
+
+<div class="container my-4">
+    <div class="card shadow-sm mx-auto" style="max-width:800px;">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="~/images/movies/@Model.Movie.MainImg" alt="@Model.Movie.Name"
+                     class="img-fluid rounded-start h-100" style="object-fit:cover;" />
+            </div>
+
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">@Model.Movie.Name</h3>
+                    <p class="text-muted mb-3">Price per seat: <strong>@((Model.Movie.Price ?? 0).ToString("N2"))</strong></p>
+
+                    <form asp-area="Customer" asp-controller="Booking" asp-action="Create" method="post">
+                        <input type="hidden" name="movieId" value="@Model.MovieId" />
+
+                        <div class="mb-3">
+                            <label asp-for="MovieDate" class="form-label">Date</label>
+                            <input asp-for="MovieDate" type="date" class="form-control" />
+                            <span asp-validation-for="MovieDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MovieTime" class="form-label">Time</label>
+                            <input asp-for="MovieTime" type="time" class="form-control" />
+                            <span asp-validation-for="MovieTime" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SeatsCount" class="form-label">Number of Seats</label>
+                            <input asp-for="SeatsCount" type="number" min="1" class="form-control"
+                                   id="seatsCount" data-price="@((Model.Movie.Price ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                            <span asp-validation-for="SeatsCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-light border">
+                            Total: <strong id="totalPrice">0.00</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                        <a asp-area="Customer" asp-controller="Movie" asp-action="Index"
+                           class="btn btn-secondary">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const seatsInput = document.getElementById('seatsCount');
+        const totalEl = document.getElementById('totalPrice');
+        const price = parseFloat(seatsInput.dataset.price);
+
+        function updateTotal() {
+            const seats = parseInt(seatsInput.value) || 0;
+            totalEl.textContent = (seats * price).toFixed(2);
+        }
+
+        seatsInput.addEventListener('input', updateTotal);
+        updateTotal();
+    </script>
+}

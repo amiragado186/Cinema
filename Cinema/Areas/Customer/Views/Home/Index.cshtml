@@ -1,0 +1,81 @@
+﻿@model List<Movie>
+
+
+    @{
+    var banners = new[]
+    {
+        "Harry Potter and the Sorcerer’s Stone (2001).webp",
+        "Aladdin (1992).webp",
+        "Back to the Future (1985).webp",
+        "Back to the Future Part III (1990).avif",
+        "Beauty and the Beast (1991)'.png",
+        "WALL-E (2008).webp"
+    };
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<div class="swiper hero-swiper ">
+    <div class="swiper-wrapper">
+        @foreach (var banner in banners)
+        {
+            var title = System.IO.Path.GetFileNameWithoutExtension(banner);
+            <div class="swiper-slide hero-slide">
+                <img src="~/images/banners/@banner" alt="@title">
+                <div class="hero-caption">
+                    <h3>@title</h3>
+                    <a class="btn btn-danger rounded-pill px-4" href="#">Book Now</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-pagination"></div>
+</div>
+
+
+
+
+
+<section class="whatson-box  mt-5">
+    <h2 class="whatson-title">What's On</h2>
+
+    <div class="whatson-grid">
+        @for (int i = 0; i < Math.Min(12, Model.Count); i++)
+        {
+            <a class="whatson-card" asp-controller="Movies" asp-action="Details" asp-route-id="@Model[i].Id">
+                <img src="~/images/Movies/@Model[i].MainImg" alt="@Model[i].Name" loading="lazy">
+                <span class="whatson-name">@Model[i].Name</span>
+            </a>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-primary px-5 rounded-pill"
+           asp-area="Customer"
+           asp-controller="Movie"
+           asp-action="Index">View All</a>
+    </div>
+</section>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        new Swiper('.hero-swiper', {
+            slidesPerView: 1.3,
+            centeredSlides: true,
+            spaceBetween: 24,
+            loop: true,
+            speed: 800,
+            grabCursor: true,
+            autoplay: { delay: 3500, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+            breakpoints: {
+                768:  { slidesPerView: 1.6 },
+                1200: { slidesPerView: 2.2 }
+            }
+        });
+    </script>
+}

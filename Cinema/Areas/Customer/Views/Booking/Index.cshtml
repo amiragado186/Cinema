@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Cinema.Models.Booking>
+
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<h1>Bookings</h1>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Movie</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Seats</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Movie?.Name</td>
+                <td>@item.MovieDate</td>
+                <td>@item.MovieTime</td>
+                <td>@item.SeatsCount</td>
+                <td>@item.TotalPrice.ToString("N2")</td>
+                <td>
+                    @if (item.Status == "Cancelled")
+                    {
+                        <span class="badge bg-danger">@item.Status</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">@item.Status</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @if (item.Status != "Cancelled")
+                    {
+                        <a class="btn btn-sm btn-warning" asp-action="Cancel" asp-route-id="@item.Id"
+                           onclick="return confirm('Cancel this booking?');">Cancel</a>
+                    }
+                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id"
+                       onclick="return confirm('Delete this booking permanently?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No bookings yet.</p>
+}

@@ -1,0 +1,156 @@
+﻿@model Movie
+
+<div class="container">
+	<div class="row mb-3 align-items-center my-3">
+		<div class="col-md-6">
+			<h2 class="display-6">Edit Movie</h2>
+		</div>
+	</div>
+
+	<div class="row my-3">
+		<div class="col-12">
+			<form method="post" enctype="multipart/form-data" asp-action="Update">
+				<!-- Needed so the POST knows which movie to update and keeps the old image -->
+				<input type="hidden" name="Id" value="@Model.Id" />
+				<input type="hidden" name="MainImg" value="@Model.MainImg" />
+
+				<div class="mb-3">
+					<label for="name" class="form-label">Name</label>
+					<input id="name" class="form-control" name="Name" value="@Model.Name" required />
+				</div>
+
+				<div class="mb-3">
+					<div class="form-floating">
+						<textarea id="description" class="form-control" name="Description"
+								  placeholder="Your description here..." style="height: 100px">@Model.Description</textarea>
+						<label for="description">Your description here...</label>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="status" class="form-label">Status</label>
+					<select id="status" class="form-select" name="Status">
+						<option value="true" selected="@(Model.Status)">Active</option>
+						<option value="false" selected="@(!Model.Status)">Inactive</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label for="Img" class="form-label">Image</label>
+					<input id="Img" type="file" class="form-control" name="ImageFile"
+						   accept="image/*" onchange="previewImage(event)">
+					<small class="text-muted">Leave empty to keep the current image.</small>
+					<div>
+						<img id="preview" alt="Preview" class="img-thumbnail mt-2"
+							 style="max-height: 200px; @(string.IsNullOrEmpty(Model.MainImg) ? "display:none;" : "")"
+							 src="@(string.IsNullOrEmpty(Model.MainImg) ? "" : "/images/" + Model.MainImg)" />
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Current Sub Images</label>
+					<div class="d-flex flex-wrap gap-2">
+						@if (Model.SubImgs != null && Model.SubImgs.Any())
+						{
+							foreach (var sub in Model.SubImgs)
+							{
+								<img src="/images/@sub.Img" alt="Sub image" class="img-thumbnail" style="height: 120px;" />
+							}
+						}
+						else
+						{
+							<span class="text-muted">No sub images yet.</span>
+						}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="SubImgs" class="form-label">Replace Sub Images</label>
+					<input id="SubImgs" type="file" class="form-control" name="SubImgs"
+						   accept="image/*" multiple onchange="previewSubImages(event)">
+					<small class="text-muted">Leave empty to keep the current sub images. New images replace the current ones.</small>
+					<div id="subPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+				</div>
+
+				<div class="mb-3">
+					<label for="CategoryId" class="form-label">Category</label>
+					<select id="CategoryId" class="form-select" name="CategoryId">
+						<option value="1" selected="@(Model.CategoryId == 1)">Action and Adventure</option>
+						<option value="2" selected="@(Model.CategoryId == 2)">Drama</option>
+						<option value="3" selected="@(Model.CategoryId == 3)">Horror</option>
+						<option value="4" selected="@(Model.CategoryId == 4)">Science Fiction</option>
+						<option value="5" selected="@(Model.CategoryId == 5)">Fantasy</option>
+						<option value="6" selected="@(Model.CategoryId == 6)">Romance</option>
+						<option value="7" selected="@(Model.CategoryId == 7)">Thriller and Mystery</option>
+						<option value="8" selected="@(Model.CategoryId == 8)">Western</option>
+						<option value="9" selected="@(Model.CategoryId == 9)">Musical</option>
+						<option value="10" selected="@(Model.CategoryId == 10)">Comedy</option>
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label for="CimaId" class="form-label">Cinema</label>
+					<select id="CimaId" class="form-select" name="CimaId">
+						<option value="1" selected="@(Model.CimaId == 1)">Cinéma Studio 28</option>
+						<option value="2" selected="@(Model.CimaId == 2)">Plaza Theatre</option>
+						<option value="3" selected="@(Model.CimaId == 3)">Americana Plaza</option>
+						<option value="4" selected="@(Model.CimaId == 4)">Curzon Bloomsbury</option>
+						<option value="5" selected="@(Model.CimaId == 5)">Grand Rex</option>
+						<option value="6" selected="@(Model.CimaId == 6)">New Beverly Cinema</option>
+					</select>
+				</div>
+
+				<button type="submit" class="btn btn-primary">Save Changes</button>
+				<a asp-action="Index" class="btn btn-secondary">Cancel</a>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	function previewImage(event) {
+		const file = event.target.files[0];
+		const preview = document.getElementById("preview");
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			preview.src = e.target.result;
+			preview.style.display = "block";
+		};
+		reader.readAsDataURL(file);
+	}
+
+	// keeps every image the admin picked, even when they are added in several rounds
+	const subFiles = new DataTransfer();
+
+	function previewSubImages(event) {
+		const input = event.target;
+
+		Array.from(input.files).forEach(function (file) {
+			const exists = Array.from(subFiles.files).some(function (f) {
+				return f.name === file.name && f.size === file.size && f.lastModified === file.lastModified;
+			});
+			if (!exists) subFiles.items.add(file);
+		});
+
+		// the form submits everything collected so far
+		input.files = subFiles.files;
+
+		const container = document.getElementById("subPreview");
+		container.innerHTML = "";
+
+		Array.from(subFiles.files).forEach(function (file) {
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const img = document.createElement("img");
+				img.src = e.target.result;
+				img.alt = "New sub image preview";
+				img.className = "img-thumbnail";
+				img.style.height = "120px";
+				container.appendChild(img);
+			};
+			reader.readAsDataURL(file);
+		});
+	}
+</script>

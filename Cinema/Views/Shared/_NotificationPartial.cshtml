@@ -1,0 +1,16 @@
+﻿@if (TempData["Successful_Notification"] is string success)
+{
+    <script>toastr.success(@Json.Serialize(success));</script>
+}
+@if (TempData["Update_Notification"] is string update)
+{
+    <script>toastr.success(@Json.Serialize(update));</script>
+}
+@if (TempData["Delete_Notification"] is string delete)
+{
+    <script>toastr.warning(@Json.Serialize(delete));</script>
+}
+@if (TempData["Error_Notificatioin"] != null)
+{
+	<script>toastr.error(@Json.Serialize(TempData["Error_Notificatioin"]));</script>
+}
